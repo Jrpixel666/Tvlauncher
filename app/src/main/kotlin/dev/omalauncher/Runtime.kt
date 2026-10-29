@@ -235,8 +235,11 @@ class Runtime(
         scope.launch { themes.ensureRelease() }
     }
 
-    /** Installs Linux in the background, with [agents]; progress shows in [Bootstrap.state] and the notification. */
-    fun installLinux(agents: List<Agent>) = runLinux { bootstrap.install(agents) }
+    /** Installs Linux in the background, with [agents] and llama.cpp if [localAi]; progress shows in [Bootstrap.state] and the notification. */
+    fun installLinux(
+        agents: List<Agent>,
+        localAi: Boolean = false,
+    ) = runLinux { bootstrap.install(agents, localAi) }
 
     /** Continues a failed install, or a failed update of an installed system. */
     fun retryLinux() = runLinux { bootstrap.run() }

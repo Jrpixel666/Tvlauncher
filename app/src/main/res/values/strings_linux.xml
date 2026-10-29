@@ -10,6 +10,7 @@
     <string name="linux_stage_agents">install coding agents</string>
     <!-- The last phase when coding agents were picked. %1$s: their names, comma-separated (Claude Code, Codex). -->
     <string name="linux_stage_agents_named">install %1$s</string>
+    <string name="linux_stage_localai">install the local ai engine</string>
 
     <!-- What setup is doing right now, under its phase on the setup screen. Settings shows these lowercased while an
          update of an installed system runs them ("updating the system: installing packages…"). -->
@@ -24,6 +25,7 @@
     <string name="linux_step_cliamp">Installing cliamp</string>
     <!-- %1$s: a coding agent's name. -->
     <string name="linux_step_agent">Installing %1$s</string>
+    <string name="linux_step_localai">Installing llama.cpp</string>
     <!-- Download progress in megabytes: %1$d done of %2$d. -->
     <string name="linux_step_downloaded">%1$d of %2$d MB</string>
     <!-- Download progress in megabytes when the total isn't known. -->
@@ -99,6 +101,8 @@
     <string name="linux_welcome_linux">linux</string>
     <string name="linux_welcome_choice">also set up Arch Linux</string>
     <string name="linux_welcome_choice_detail">terminal apps, agents, pacman · ~1 GB download, 3 GB space</string>
+    <string name="linux_welcome_localai">local ai</string>
+    <string name="linux_welcome_localai_detail">search Hugging Face and run a model fully offline · settings › local ai</string>
     <string name="linux_welcome_start">start</string>
     <string name="linux_welcome_start_linux">start and set up linux</string>
     <string name="linux_welcome_start_hint">Downloads the theme\'s wallpaper now and Omarchy\'s other themes (about 70 MB) in the background.</string>

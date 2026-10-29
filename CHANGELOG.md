@@ -6,6 +6,10 @@ Dates are when the build was uploaded to Play.
 
 ## 0.15.0 (versionCode 26) – unreleased
 
+- The welcome screen's "also set up Arch Linux" choice now has a "local ai" toggle next to the
+  coding agents: picking it installs llama.cpp alongside Linux, so settings › local ai is ready
+  to search and download a model without a separate install step. The same toggle is on
+  settings › linux's install offer for anyone who skipped it during setup.
 - Settings › local ai: search Hugging Face for a model, filter to the ones with a GGUF build
   (the "compatible with my device" button, sorted into chat, code, vision, audio and
   embedding sections), download one and run it offline with llama.cpp (installed like any

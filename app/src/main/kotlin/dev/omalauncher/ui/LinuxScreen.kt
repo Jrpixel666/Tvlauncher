@@ -63,7 +63,8 @@ fun LinuxScreen(
             when (val s = state) {
                 LinuxState.Checking -> {}
                 LinuxState.NotInstalled -> InstallOffer(runtime)
-                is LinuxState.Installing, is LinuxState.Failed -> LinuxProgress(s, runtime.bootstrap.chosenAgents, runtime::retryLinux, runtime::cancelLinux.takeIf { runtime.bootstrap.cancellable })
+                is LinuxState.Installing, is LinuxState.Failed ->
+                    LinuxProgress(s, runtime.bootstrap.chosenAgents, runtime.bootstrap.wantsLocalAi, runtime::retryLinux, runtime::cancelLinux.takeIf { runtime.bootstrap.cancellable })
                 LinuxState.Installed -> Installed(runtime)
                 LinuxState.Removing -> BasicText(stringResource(R.string.linux_removing), style = Mono.copy(color = Palette.accent))
             }
@@ -78,11 +79,11 @@ fun LinuxScreen(
  * screen, becoming the home app moves home to a new task, away from the dialog.
  */
 @Composable
-fun rememberLinuxInstall(runtime: Runtime): (List<String>) -> Unit {
+fun rememberLinuxInstall(runtime: Runtime): (List<String>, Boolean) -> Unit {
     val context = LocalContext.current
     val ask = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {}
-    return { bins ->
-        runtime.installLinux(AGENTS.filter { it.bin in bins })
+    return { bins, localAi ->
+        runtime.installLinux(AGENTS.filter { it.bin in bins }, localAi)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
             context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
         ) {
@@ -94,6 +95,7 @@ fun rememberLinuxInstall(runtime: Runtime): (List<String>) -> Unit {
 @Composable
 private fun InstallOffer(runtime: Runtime) {
     var picked by rememberSaveable { mutableStateOf(listOf(AGENTS.first().bin)) }
+    var localAi by rememberSaveable { mutableStateOf(false) }
     val install = rememberLinuxInstall(runtime)
     BasicText(stringResource(R.string.linux_offer_title), style = Mono.copy(fontSize = TextSize.Large))
     Spacer(Modifier.height(8.dp))
@@ -104,10 +106,12 @@ private fun InstallOffer(runtime: Runtime) {
     Spacer(Modifier.height(16.dp))
     // Above the agent list, so it's in reach without scrolling.
     PrimaryButton(if (picked.isEmpty()) stringResource(R.string.linux_install) else pluralStringResource(R.plurals.linux_install_with_agents, picked.size, picked.size), Modifier.takesPassedKeys().passesKeys()) {
-        install(picked)
+        install(picked, localAi)
     }
     Spacer(Modifier.height(24.dp))
     AgentPicker(picked) { bin -> picked = if (bin in picked) picked - bin else picked + bin }
+    Spacer(Modifier.height(24.dp))
+    LocalAiChoice(localAi) { localAi = !localAi }
 }
 
 @Composable

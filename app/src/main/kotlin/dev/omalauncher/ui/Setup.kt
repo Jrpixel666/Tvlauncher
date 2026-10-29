@@ -71,6 +71,7 @@ internal fun SetupScreen(runtime: Runtime) {
     var linux by rememberSaveable { mutableStateOf(false) }
     // Claude Code first, like Omarchy's default agent; the first picked becomes the launcher's default.
     var picked by rememberSaveable { mutableStateOf(listOf(AGENTS.first().bin)) }
+    var localAi by rememberSaveable { mutableStateOf(false) }
     var started by remember { mutableStateOf(false) }
     val install = rememberLinuxInstall(runtime)
     var error by remember { mutableStateOf<String?>(null) }
@@ -98,7 +99,7 @@ internal fun SetupScreen(runtime: Runtime) {
                 if (started) {
                     ThemeDownloadProgress(themes.choices.firstOrNull { it.name == themes.picked }?.title?.lowercase() ?: themes.picked, error, onRetry = ::fetchTheme, onSkip = runtime::finishWelcome)
                 } else {
-                    Welcome(themes, pickedFocus, linux, { linux = !linux }, picked) { bin -> picked = if (bin in picked) picked - bin else picked + bin }
+                    Welcome(themes, pickedFocus, linux, { linux = !linux }, picked, { bin -> picked = if (bin in picked) picked - bin else picked + bin }, localAi) { localAi = !localAi }
                 }
             }
         }
@@ -108,7 +109,7 @@ internal fun SetupScreen(runtime: Runtime) {
                 Appear(3) {
                     StartButton(linux) {
                         started = true
-                        if (linux) install(picked)
+                        if (linux) install(picked, localAi)
                         fetchTheme()
                     }
                 }
@@ -137,6 +138,8 @@ private fun Welcome(
     onToggleLinux: () -> Unit,
     picked: List<String>,
     onToggle: (String) -> Unit,
+    localAi: Boolean,
+    onToggleLocalAi: () -> Unit,
 ) {
     Appear(0) {
         Column {
@@ -171,6 +174,8 @@ private fun Welcome(
             if (linux) {
                 Spacer(Modifier.height(24.dp))
                 AgentPicker(picked, onToggle)
+                Spacer(Modifier.height(24.dp))
+                LocalAiChoice(localAi, onToggleLocalAi)
             }
         }
     }
@@ -193,6 +198,15 @@ internal fun AgentPicker(
             for (agent in AGENTS) Choice(agent.name, stringResource(agent.description), agent.bin in picked) { onToggle(agent.bin) }
         }
     }
+}
+
+/** Whether to also install llama.cpp with Linux, so settings › local ai works without a separate install step. */
+@Composable
+internal fun LocalAiChoice(
+    on: Boolean,
+    onToggle: () -> Unit,
+) {
+    Choice(stringResource(R.string.linux_welcome_localai), stringResource(R.string.linux_welcome_localai_detail), on, onToggle)
 }
 
 @Composable
@@ -307,6 +321,7 @@ internal fun PrimaryButton(
 internal fun LinuxProgress(
     state: LinuxState,
     agents: List<Agent>,
+    localAi: Boolean,
     onRetry: () -> Unit,
     /** Stops the install and deletes what it put on disk; null once it can't be (an update of an installed system). */
     onCancel: (() -> Unit)?,
@@ -320,7 +335,7 @@ internal fun LinuxProgress(
         style = Mono.copy(fontSize = TextSize.Large, color = if (failed != null) Palette.red else Palette.foreground),
     )
     Spacer(Modifier.height(24.dp))
-    val stages = Stage.entries.filter { it != Stage.Agents || agents.isNotEmpty() }
+    val stages = Stage.entries.filter { (it != Stage.Agents || agents.isNotEmpty()) && (it != Stage.LocalAi || localAi) }
     Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
         for (stage in stages) {
             val status =

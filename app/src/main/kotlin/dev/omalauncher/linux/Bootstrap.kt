@@ -101,7 +101,11 @@ enum class Stage(
     Configure(R.string.linux_stage_configure),
     Packages(R.string.linux_stage_packages),
     Agents(R.string.linux_stage_agents),
+    LocalAi(R.string.linux_stage_localai),
 }
+
+/** llama.cpp's package name, the same one `settings › local ai` searches pacman for. */
+private const val LOCAL_AI_PACKAGE = "llama.cpp"
 
 /** Where the optional Linux system stands. The launcher works in every state; Linux features only when [Installed]. */
 sealed interface LinuxState {
@@ -178,13 +182,23 @@ class Bootstrap(
     /** The agents picked when installing Linux, one bin per line; its existence means an install was started. */
     private val choiceFile get() = File(proot.filesDir, "setup-agents")
 
+    /** Marks that local ai (llama.cpp) was picked when installing Linux, welcome screen or settings alike. */
+    private val localAiFile get() = File(proot.filesDir, "setup-localai")
+
     /** The coding agents setup installs, in the order they were listed. */
     val chosenAgents: List<Agent>
         get() = runCatching { choiceFile.readLines() }.getOrDefault(emptyList()).mapNotNull { bin -> AGENTS.find { it.bin == bin } }
 
-    fun choose(picked: List<Agent>) {
+    /** Whether local ai was picked when Linux was installed (or is still pending for an install in progress). */
+    val wantsLocalAi: Boolean get() = localAiFile.exists()
+
+    fun choose(
+        picked: List<Agent>,
+        localAi: Boolean = false,
+    ) {
         proot.filesDir.mkdirs()
         choiceFile.writeText(picked.joinToString("") { it.bin + "\n" })
+        if (localAi) localAiFile.writeText("") else localAiFile.delete()
     }
 
     private var stage = Stage.Download
@@ -283,9 +297,12 @@ class Bootstrap(
         if (cancelled) throw CancellationException("cancelled")
     }
 
-    /** Starts installing Linux with [picked] coding agents; see [run]. */
-    suspend fun install(picked: List<Agent>) {
-        choose(picked)
+    /** Starts installing Linux with [picked] coding agents, and llama.cpp if [localAi]; see [run]. */
+    suspend fun install(
+        picked: List<Agent>,
+        localAi: Boolean = false,
+    ) {
+        choose(picked, localAi)
         run()
     }
 
@@ -334,6 +351,7 @@ class Bootstrap(
             }
         }
         installAgents()
+        installLocalAi()
         checkCancelled()
         journal.completeSetup()
     }
@@ -405,6 +423,22 @@ class Bootstrap(
             }
         }
         chosen.firstOrNull { agents.isInstalled(it) }?.let(agents::choose)
+    }
+
+    /**
+     * Installs llama.cpp if local ai was picked on the welcome screen. A failure doesn't fail setup: the
+     * engine can be installed again from settings › local ai, same as it can be for anyone who skipped this.
+     */
+    private suspend fun installLocalAi() {
+        if (!wantsLocalAi) return
+        checkCancelled()
+        try {
+            report(Stage.LocalAi, text(R.string.linux_step_localai))
+            guest(pacmanInstall(listOf(LOCAL_AI_PACKAGE)))
+        } catch (e: Exception) {
+            if (e is CancellationException) throw e
+            log.add(text(R.string.linux_log_step_failed, text(R.string.linux_stage_localai), "${e.message}"))
+        }
     }
 
     private fun report(
