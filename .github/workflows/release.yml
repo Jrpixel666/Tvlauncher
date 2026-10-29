@@ -1,14 +1,18 @@
 name: release
 
+# Builds a signed APK for a version tag (v0.4.0) and attaches it to a GitHub release.
+# The Play Store AAB is still built and uploaded locally with fastlane.
 on:
   push:
-    tags: ["v*"]
+    tags: ['v*']
 
 permissions:
   contents: write
+  id-token: write
+  attestations: write
 
 jobs:
-  release:
+  apk:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -20,42 +24,72 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
-      # The NDK app/build.gradle.kts pins; installed up front so AGP doesn't download it mid-build.
-      - name: Install the NDK
+      - name: Check the tag matches the app version
+        id: version
         run: |
+          name=$(sed -n 's/^ *versionName = "\(.*\)"/\1/p' app/build.gradle.kts)
+          code=$(sed -n 's/^ *versionCode = \([0-9]*\)/\1/p' app/build.gradle.kts)
+          if [ "$GITHUB_REF_NAME" != "v$name" ]; then
+            echo "Tag $GITHUB_REF_NAME doesn't match versionName $name" >&2
+            exit 1
+          fi
+          echo "name=$name" >> "$GITHUB_OUTPUT"
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+
+      - name: Fetch proot
+        run: |
+          sudo apt-get update -q && sudo apt-get install -yq libarchive-tools
           ndk=$(sed -n 's/^NDK_VERSION=//p' scripts/fetch-proot.sh)
           [ -d "$ANDROID_HOME/ndk/$ndk" ] || yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "ndk;$ndk" >/dev/null
+          scripts/fetch-proot.sh
 
-      # bsdtar reads .deb (ar) archives, which scripts/fetch-proot.sh needs; not on the runner by default.
-      - name: Install bsdtar
-        run: sudo apt-get update -y && sudo apt-get install -y libarchive-tools
-
-      # Builds proot itself (from Termux's source), so the release has working Linux features.
-      - name: Build proot
-        run: ./scripts/fetch-proot.sh
-
-      # app/build.gradle.kts reads this gitignored file for the release signingConfig; built here from
-      # secrets instead, decoded to a keystore nothing in the repo or logs ever has the password for.
-      - name: Write keystore.properties
+      # The upload key, so the APK has the fingerprint assetlinks.json already lists.
+      - name: Write the signing key
         env:
-          KEYSTORE_BASE64: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
-          KEYSTORE_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
-          echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.jks"
+          if [ -z "$KEYSTORE_BASE64" ]; then
+            echo "The KEYSTORE_* secrets aren't set; the APK would be debug-signed" >&2
+            exit 1
+          fi
+          echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/upload.jks"
           cat > keystore.properties <<EOF
-          storeFile=$RUNNER_TEMP/release.jks
+          storeFile=$RUNNER_TEMP/upload.jks
           storePassword=$KEYSTORE_PASSWORD
           keyAlias=$KEY_ALIAS
           keyPassword=$KEY_PASSWORD
           EOF
 
-      - name: Build signed release APK
-        run: ./gradlew :app:assembleRelease
+      - name: Test and build
+        run: ./gradlew :owl:test :app:testDebugUnitTest :app:assembleRelease
 
-      - name: Publish release
-        uses: softprops/action-gh-release@v2
+      # Checksum and provenance, so a sideloaded APK can be checked against what CI built:
+      # sha256sum -c SHA256SUMS, or gh attestation verify <apk> -R SimonSchubert/omalauncher.
+      - name: Checksum
+        id: apk
+        run: |
+          apk="omalauncher-${{ steps.version.outputs.name }}.apk"
+          cp app/build/outputs/apk/release/app-release.apk "$apk"
+          sha256sum "$apk" > SHA256SUMS
+          echo "file=$apk" >> "$GITHUB_OUTPUT"
+          # The same R8 run as the Play AAB's, so it retraces Play crashes too: match `r8-map-id` to `# pg_map_id`.
+          cp app/build/outputs/mapping/release/mapping.txt "mapping-${{ steps.version.outputs.name }}.txt"
+
+      - uses: actions/attest-build-provenance@v2
         with:
-          files: app/build/outputs/apk/release/app-release.apk
-          generate_release_notes: true
+          subject-path: ${{ steps.apk.outputs.file }}
+
+      - name: Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          apk="${{ steps.apk.outputs.file }}"
+          notes=fastlane/metadata/android/en-US/changelogs/${{ steps.version.outputs.code }}.txt
+          if [ ! -f "$notes" ]; then
+            echo "$notes is missing" >&2
+            exit 1
+          fi
+          gh release create "$GITHUB_REF_NAME" "$apk" SHA256SUMS "mapping-${{ steps.version.outputs.name }}.txt" --title "$GITHUB_REF_NAME" --notes-file "$notes" --verify-tag
