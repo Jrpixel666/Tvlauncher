@@ -108,7 +108,7 @@ private fun TurnRow(turn: CodeTurn) {
                 }
                 for (file in turn.files) {
                     BasicText(
-                        stringResource(R.string.localai_code_wrote, file.path, formatSize(file.sizeBytes)),
+                        stringResource(R.string.localai_code_wrote, file.path, formatModelSize(file.sizeBytes)),
                         Modifier.padding(top = 4.dp),
                         style = Mono.copy(color = Palette.green, fontSize = TextSize.Small),
                     )

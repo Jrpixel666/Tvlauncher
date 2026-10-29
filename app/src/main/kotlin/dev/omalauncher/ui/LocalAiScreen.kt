@@ -222,7 +222,7 @@ private fun DownloadedModelRow(
             Column {
                 BasicText(model.name, style = Mono.copy(fontSize = TextSize.Item))
                 BasicText(
-                    if (isDefault) stringResource(R.string.localai_default_tag, formatSize(model.sizeBytes)) else formatSize(model.sizeBytes),
+                    if (isDefault) stringResource(R.string.localai_default_tag, formatModelSize(model.sizeBytes)) else formatModelSize(model.sizeBytes),
                     style = Mono.copy(color = if (isDefault) Palette.accent else Palette.muted, fontSize = TextSize.Small),
                 )
             }
@@ -279,7 +279,7 @@ private fun ModelRow(
                         }
                         when {
                             state is JobState.Working -> BasicText("${stringResource(state.action)}…", style = Mono.copy(color = Palette.accent, fontSize = TextSize.Small))
-                            else -> BasicText(formatSize(file.sizeBytes), Modifier.padding(end = 8.dp), style = Mono.copy(color = Palette.muted, fontSize = TextSize.Small))
+                            else -> BasicText(formatModelSize(file.sizeBytes), Modifier.padding(end = 8.dp), style = Mono.copy(color = Palette.muted, fontSize = TextSize.Small))
                         }
                         if (state !is JobState.Working) {
                             BracketAction(stringResource(R.string.localai_download), Palette.accent) { scope.launch { localAi.download(model, file) } }
@@ -292,7 +292,7 @@ private fun ModelRow(
     }
 }
 
-internal fun formatSize(bytes: Long): String =
+internal fun formatModelSize(bytes: Long): String =
     when {
         bytes <= 0 -> ""
         bytes >= 1_000_000_000L -> "%.1f GB".format(bytes / 1e9)

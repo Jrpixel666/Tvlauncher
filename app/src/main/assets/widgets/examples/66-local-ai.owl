@@ -4,6 +4,8 @@ widget "local ai" {
   size: 3x3
   minSize: 3x2
 
+  meta { owl: 5 }
+
   // omalauncher-ai is the default local model's one-off answer to a prompt (settings › local ai, see README.md);
   // it can take a while on a phone, so this asks rarely and keeps showing the last answer meanwhile.
   // optional: without Linux, or before a model is downloaded, this shows a placeholder instead of failing.
