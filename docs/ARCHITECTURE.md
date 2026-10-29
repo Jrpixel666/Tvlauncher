@@ -31,7 +31,9 @@ touches it: `files/omarchy` is `~/.local/share/omarchy` and `files/widgets` is
   `WindowRenderer`, which draws one window into its activity's SurfaceView
   (or, for a widget's `Terminal`, into a TextureView in the tile)
 - `linux/`: proot, the rootfs setup and its update steps, pacman, coding
-  agents, and the bridges to Android (audio, URLs, /proc)
+  agents, local AI (`HuggingFace.kt`, `LocalAi.kt`: Hugging Face search and a
+  downloaded GGUF model, run offline by llama.cpp), and the bridges to
+  Android (audio, URLs, /proc)
 - `ui/`: the Compose home screen, the bar and its app list, settings and Files
 - `widgets/`: the widget engine; the language itself is in the `owl` module.
   A widget's state and sources live in its `WidgetInstance`, which runs while

@@ -24,6 +24,10 @@
     <string name="settings_agents">coding agents</string>
     <string name="settings_agents_default">default: %1$s</string>
     <string name="settings_agents_install">install Claude Code, OpenCode, …</string>
+    <string name="settings_localai">local ai</string>
+    <!-- %1$s is the downloaded model's file name. -->
+    <string name="settings_localai_default">default: %1$s</string>
+    <string name="settings_localai_install">browse Hugging Face, download a model to run offline</string>
     <string name="settings_needs_linux">needs linux</string>
     <string name="settings_packages">packages</string>
     <string name="settings_packages_subtitle">install Linux apps and tools with pacman and the AUR</string>

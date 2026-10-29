@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Settings › local ai (linux/LocalAi.kt, linux/HuggingFace.kt, ui/LocalAiScreen.kt). -->
+<resources>
+    <string name="localai_title">local ai</string>
+    <string name="localai_intro">A model from Hugging Face, downloaded once and run by llama.cpp with no network after that. Widgets can ask it too, with omalauncher-ai: see the widget docs.</string>
+
+    <string name="localai_engine_title">engine</string>
+    <string name="localai_engine_intro">llama.cpp runs the model; install it like any other package, below or in settings › packages.</string>
+
+    <string name="localai_downloaded">downloaded</string>
+    <string name="localai_chat">chat</string>
+    <string name="localai_use">use</string>
+    <!-- %1$s is the model file's size, like "4.1 GB". -->
+    <string name="localai_default_tag">default · %1$s</string>
+
+    <string name="localai_suggestions_title">home screen suggestions</string>
+    <string name="localai_suggestions_intro">Let the default model reorder the recent-apps strip by time of day. Off leaves it as usage alone orders it.</string>
+    <string name="localai_suggestions_on">on</string>
+    <string name="localai_suggestions_off">off</string>
+
+    <string name="localai_browse">browse hugging face</string>
+    <string name="localai_search_placeholder">search models</string>
+    <string name="localai_compatible_on">compatible with my device ✓</string>
+    <string name="localai_compatible_off">compatible with my device</string>
+    <string name="localai_none">no models match</string>
+    <!-- %1$d downloads, %2$d likes. -->
+    <string name="localai_model_stats">%1$d downloads · %2$d likes</string>
+    <string name="localai_show_files">files</string>
+    <string name="localai_hide_files">hide</string>
+    <string name="localai_no_gguf">no GGUF build listed for this model</string>
+    <string name="localai_download">download</string>
+    <string name="localai_job_downloading">downloading</string>
+
+    <string name="localai_category_chat">chat &amp; text generation</string>
+    <string name="localai_category_code">code</string>
+    <string name="localai_category_vision">vision</string>
+    <string name="localai_category_audio">audio &amp; speech</string>
+    <string name="localai_category_embedding">embeddings</string>
+    <string name="localai_category_other">other</string>
+</resources>

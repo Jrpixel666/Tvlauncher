@@ -6,6 +6,11 @@ Dates are when the build was uploaded to Play.
 
 ## 0.15.0 (versionCode 26) – unreleased
 
+- Settings › local ai: search Hugging Face for a model, filter to the ones with a GGUF build
+  (the "compatible with my device" button, sorted into chat, code, vision, audio and
+  embedding sections), download one and run it offline with llama.cpp (installed like any
+  other package). Widgets can ask the default model too, with `cmd("omalauncher-ai '...'")`;
+  the home screen can optionally let it reorder the recent-apps strip by time of day.
 - The launcher speaks Indonesian: with the phone set to Indonesian, all of its text, the
   drawer, the today, fetch and owl widgets and the terminal key bar's spoken key names are
   in Indonesian.
