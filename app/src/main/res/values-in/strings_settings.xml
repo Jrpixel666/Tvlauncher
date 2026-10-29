@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="settings_title">pengaturan</string>
 
     <string name="settings_style">gaya</string>
@@ -20,6 +20,10 @@
     <string name="settings_agents">agen coding</string>
     <string name="settings_agents_default">default: %1$s</string>
     <string name="settings_agents_install">pasang Claude Code, OpenCode, …</string>
+    <!-- Not translated yet; see strings_localai.xml. -->
+    <string name="settings_localai" tools:ignore="MissingTranslation">local ai</string>
+    <string name="settings_localai_default" tools:ignore="MissingTranslation">default: %1$s</string>
+    <string name="settings_localai_install" tools:ignore="MissingTranslation">browse Hugging Face, download a model to run offline</string>
     <string name="settings_needs_linux">perlu linux</string>
     <string name="settings_packages">paket</string>
     <string name="settings_packages_subtitle">pasang aplikasi dan alat Linux dengan pacman dan AUR</string>

@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint">
+
+    <issue
+        id="LocalContextGetResourceValueCall"
+        message="Querying resource values using LocalContext.current is not configuration-aware and may return stale values if the Configuration changes">
+        <location
+            file="src/main/kotlin/dev/omalauncher/ui/EditorScreen.kt"
+            line="125"/>
+    </issue>
+
+    <issue
+        id="LocalContextGetResourceValueCall"
+        message="Querying resource values using LocalContext.current is not configuration-aware and may return stale values if the Configuration changes">
+        <location
+            file="src/main/kotlin/dev/omalauncher/ui/EditorScreen.kt"
+            line="176"/>
+    </issue>
+
+    <issue
+        id="LocalContextGetResourceValueCall"
+        message="Querying resource values using LocalContext.current is not configuration-aware and may return stale values if the Configuration changes">
+        <location
+            file="src/main/kotlin/dev/omalauncher/ui/EditorScreen.kt"
+            line="202"/>
+    </issue>
+
+    <issue
+        id="LocalContextGetResourceValueCall"
+        message="Querying resource values using LocalContext.current is not configuration-aware and may return stale values if the Configuration changes">
+        <location
+            file="src/main/kotlin/dev/omalauncher/ui/FilesScreen.kt"
+            line="119"/>
+    </issue>
+
+    <issue
+        id="LocalContextGetResourceValueCall"
+        message="Querying resource values using LocalContext.current is not configuration-aware and may return stale values if the Configuration changes">
+        <location
+            file="src/main/kotlin/dev/omalauncher/ui/FilesScreen.kt"
+            line="131"/>
+    </issue>
+
+    <issue
+        id="LocalContextGetResourceValueCall"
+        message="Querying resource values using LocalContext.current is not configuration-aware and may return stale values if the Configuration changes">
+        <location
+            file="src/main/kotlin/dev/omalauncher/ui/FilesScreen.kt"
+            line="143"/>
+    </issue>
+
+    <issue
+        id="LocalContextGetResourceValueCall"
+        message="Querying resource values using LocalContext.current is not configuration-aware and may return stale values if the Configuration changes">
+        <location
+            file="src/main/kotlin/dev/omalauncher/ui/FilesScreen.kt"
+            line="155"/>
+    </issue>
+
+    <issue
+        id="LocalContextGetResourceValueCall"
+        message="Querying resource values using LocalContext.current is not configuration-aware and may return stale values if the Configuration changes">
+        <location
+            file="src/main/kotlin/dev/omalauncher/ui/FilesScreen.kt"
+            line="157"/>
+    </issue>
+
+    <issue
+        id="LocalContextGetResourceValueCall"
+        message="Querying resource values using LocalContext.current is not configuration-aware and may return stale values if the Configuration changes">
+        <location
+            file="src/main/kotlin/dev/omalauncher/ui/FilesScreen.kt"
+            line="347"/>
+    </issue>
+
+    <issue
+        id="LocalContextGetResourceValueCall"
+        message="Querying resource values using LocalContext.current is not configuration-aware and may return stale values if the Configuration changes">
+        <location
+            file="src/main/kotlin/dev/omalauncher/ui/ShareWidgetScreen.kt"
+            line="147"/>
+    </issue>
+
+    <issue
+        id="LocalContextGetResourceValueCall"
+        message="Querying resource values using LocalContext.current is not configuration-aware and may return stale values if the Configuration changes">
+        <location
+            file="src/main/kotlin/dev/omalauncher/ui/ShareWidgetScreen.kt"
+            line="178"/>
+    </issue>
+
+    <issue
+        id="LocalContextGetResourceValueCall"
+        message="Querying resource values using LocalContext.current is not configuration-aware and may return stale values if the Configuration changes">
+        <location
+            file="src/main/kotlin/dev/omalauncher/ui/ShareWidgetScreen.kt"
+            line="181"/>
+    </issue>
+
+    <issue
+        id="LocalContextGetResourceValueCall"
+        message="Querying resource values using LocalContext.current is not configuration-aware and may return stale values if the Configuration changes">
+        <location
+            file="src/main/kotlin/dev/omalauncher/ui/ShareWidgetScreen.kt"
+            line="182"/>
+    </issue>
+
+    <issue
+        id="LocalContextGetResourceValueCall"
+        message="Querying resource values using LocalContext.current is not configuration-aware and may return stale values if the Configuration changes">
+        <location
+            file="src/main/kotlin/dev/omalauncher/ui/ShareWidgetScreen.kt"
+            line="187"/>
+    </issue>
+
+    <issue
+        id="LocalContextGetResourceValueCall"
+        message="Querying resource values using LocalContext.current is not configuration-aware and may return stale values if the Configuration changes">
+        <location
+            file="src/main/kotlin/dev/omalauncher/ui/ShareWidgetScreen.kt"
+            line="188"/>
+    </issue>
+
+    <issue
+        id="LocalContextGetResourceValueCall"
+        message="Querying resource values using LocalContext.current is not configuration-aware and may return stale values if the Configuration changes">
+        <location
+            file="src/main/kotlin/dev/omalauncher/ui/ShareWidgetScreen.kt"
+            line="191"/>
+    </issue>
+
+    <issue
+        id="LocalContextGetResourceValueCall"
+        message="Querying resource values using LocalContext.current is not configuration-aware and may return stale values if the Configuration changes">
+        <location
+            file="src/main/kotlin/dev/omalauncher/ui/ShareWidgetScreen.kt"
+            line="274"/>
+    </issue>
+
+    <issue
+        id="LocalContextGetResourceValueCall"
+        message="Querying resource values using LocalContext.current is not configuration-aware and may return stale values if the Configuration changes">
+        <location
+            file="src/main/kotlin/dev/omalauncher/ui/ShareWidgetScreen.kt"
+            line="275"/>
+    </issue>
+
+    <!-- Reported twice (two lint variants see this line); a second entry so both are absorbed. -->
+    <issue
+        id="LocalContextGetResourceValueCall"
+        message="Querying resource values using LocalContext.current is not configuration-aware and may return stale values if the Configuration changes">
+        <location
+            file="src/main/kotlin/dev/omalauncher/ui/ShareWidgetScreen.kt"
+            line="275"/>
+    </issue>
+
+</issues>

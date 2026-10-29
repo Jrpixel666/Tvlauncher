@@ -6,6 +6,26 @@ Dates are when the build was uploaded to Play.
 
 ## 0.15.0 (versionCode 26) – unreleased
 
+- Settings › local ai: search Hugging Face for a model, filter to the ones with a GGUF build
+  (the "compatible with my device" button, sorted into chat, code, vision, audio and
+  embedding sections), download one and run it offline with llama.cpp (installed like any
+  other package). Widgets can ask the default model too, with `cmd("omalauncher-ai '...'")`;
+  the home screen can optionally let it reorder the recent-apps strip by time of day.
+- Settings › local ai also has a second, separate window: "build an app" sets up a JDK,
+  Gradle and the Android SDK (aapt2/aapt/aidl/zipalign swapped for an ARM64 build, since
+  Google only ships those four as x86_64 binaries) and opens a coding agent in it to scaffold
+  a real Android app, pushed to a new GitHub repo and built into an APK there (Google's real
+  build tools, no ARM64 workaround needed), with the APK attached to a GitHub Release — a
+  local model isn't capable enough for that, so this one needs an installed coding agent and
+  its own internet access.
+- A third local-ai window, "code with it": ask the local model for files instead of an answer
+  to read, and it writes what it generates straight into a project under ~/android-apps, no
+  copying by hand. A small model loses track past a few files and can't read what it hasn't
+  been shown, so it's meant for drafting one or a few files at a time before handing the
+  project to "build an app"'s coding agent to take further.
+- A "local ai" example widget (store's built-in examples): a tile that shows the default
+  model's answer to a rotating prompt, refreshed hourly, tap to open settings › local ai.
+  `launcher("localai")` is new for any widget that wants that same tap target.
 - The launcher speaks Indonesian: with the phone set to Indonesian, all of its text, the
   drawer, the today, fetch and owl widgets and the terminal key bar's spoken key names are
   in Indonesian.

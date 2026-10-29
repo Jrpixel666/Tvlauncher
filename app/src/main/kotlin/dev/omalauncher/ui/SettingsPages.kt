@@ -20,6 +20,7 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import dev.omalauncher.Runtime
 import dev.omalauncher.linux.LinuxState
+import dev.omalauncher.linux.androidAppCommand
 
 /** The screens of the settings activity; each can also be opened on its own, from home or a widget. */
 enum class SettingsPage {
@@ -32,6 +33,7 @@ enum class SettingsPage {
     /** The community themes, over the style screen or from the home menu's theme strip. */
     Themes,
     Agents,
+    LocalAi,
     Store,
 
     /** The store on its faces, from the empty page left of page 1. */
@@ -111,6 +113,7 @@ private fun SettingsPage(
                 onStyle = { stack.push(SettingsPage.Style) },
                 onPages = { stack.push(SettingsPage.Pages) },
                 onAgents = { stack.push(SettingsPage.Agents) },
+                onLocalAi = { stack.push(SettingsPage.LocalAi) },
                 onPackages = { stack.push(SettingsPage.Packages) },
                 onLinux = { stack.push(SettingsPage.Linux) },
                 onLicenses = { stack.push(SettingsPage.Licenses) },
@@ -153,6 +156,24 @@ private fun SettingsPage(
                     onOpen = { agent ->
                         close()
                         runtime.terminal(agent.command, agent.name, agent)
+                    },
+                )
+            }
+        // Local AI needs Linux too: llama.cpp is a package, and a model only runs inside it.
+        SettingsPage.LocalAi ->
+            if (!linuxInstalled) {
+                LinuxScreen(runtime, onDismiss = close)
+            } else {
+                LocalAiScreen(
+                    runtime,
+                    onDismiss = close,
+                    onChat = { model ->
+                        close()
+                        runtime.terminal(runtime.localAi.chatInvocation(model), "local ai")
+                    },
+                    onBuildApp = {
+                        close()
+                        agent("build android app") { bin -> androidAppCommand(bin) }
                     },
                 )
             }

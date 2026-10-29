@@ -373,19 +373,27 @@ internal fun recentApps(
     // By kind, as appIconOf does, rather than through allApps: the strip asks on each recomposition, for a handful of keys.
     val android = runtime.androidApps
     val owl by lazy { runtime.widgets.apps() }
-    return runtime.usage.recent
-        .asSequence()
-        .mapNotNull { key ->
-            val id = key.substringAfter(':')
-            when (key.substringBefore(':')) {
-                "a" -> android.byKey[id]?.let(AppHit::Android)
-                "s" -> android.shortcuts.lastOrNull { it.key == id }?.let(AppHit::Shortcut)
-                "l" -> runtime.linuxApps.apps.lastOrNull { it.id == id }?.let(AppHit::Linux)
-                "o" -> owl.lastOrNull { it.file.name == id }?.let(AppHit::Owl)
-                else -> null
-            }
-        }.take(limit)
-        .toList()
+    // The local model's picks (LocalAi.refreshSuggestions) come first, in its order; everything else keeps the usual,
+    // usage-based order after them. A pick that isn't actually in use, or the feature being off, changes nothing. It's
+    // only ever drawn from the same recent apps this resolves, so a few extra past `limit` are enough to find its picks.
+    val suggested = runtime.localAi.suggestedKeys
+    val pool = if (suggested.isEmpty()) limit else maxOf(limit, 20)
+    val resolved =
+        runtime.usage.recent
+            .asSequence()
+            .mapNotNull { key ->
+                val id = key.substringAfter(':')
+                when (key.substringBefore(':')) {
+                    "a" -> android.byKey[id]?.let(AppHit::Android)
+                    "s" -> android.shortcuts.lastOrNull { it.key == id }?.let(AppHit::Shortcut)
+                    "l" -> runtime.linuxApps.apps.lastOrNull { it.id == id }?.let(AppHit::Linux)
+                    "o" -> owl.lastOrNull { it.file.name == id }?.let(AppHit::Owl)
+                    else -> null
+                }
+            }.take(pool)
+            .toList()
+    val ordered = if (suggested.isEmpty()) resolved else resolved.sortedBy { suggested.indexOf(it.key).let { i -> if (i < 0) suggested.size else i } }
+    return ordered.take(limit)
 }
 
 /** Pulling down past the top of a list in the drawer drags it closed, like stock drawers; for its list, and a panel's in its place. */

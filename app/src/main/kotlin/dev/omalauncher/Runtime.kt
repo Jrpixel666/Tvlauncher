@@ -19,12 +19,14 @@ import androidx.compose.ui.graphics.toArgb
 import dev.omalauncher.linux.AGENTS
 import dev.omalauncher.linux.Agent
 import dev.omalauncher.linux.AgentStore
+import dev.omalauncher.linux.AndroidSdk
 import dev.omalauncher.linux.AudioBridge
 import dev.omalauncher.linux.Bootstrap
 import dev.omalauncher.linux.EDIT_COMMAND
 import dev.omalauncher.linux.FILES_COMMAND
 import dev.omalauncher.linux.Gpu
 import dev.omalauncher.linux.LinuxApp
+import dev.omalauncher.linux.LocalAi
 import dev.omalauncher.linux.OpenBridge
 import dev.omalauncher.linux.Pacman
 import dev.omalauncher.linux.Proot
@@ -41,6 +43,7 @@ import dev.omalauncher.theme.StyleStore
 import dev.omalauncher.theme.ThemeStore
 import dev.omalauncher.ui.Gestures
 import dev.omalauncher.ui.KeyboardBridge
+import dev.omalauncher.ui.recentApps
 import dev.omalauncher.ui.SettingsPage
 import dev.omalauncher.ui.TerminalTiles
 import dev.omalauncher.ui.WindowManager
@@ -99,6 +102,8 @@ class Runtime(
     private val openBridge = OpenBridge(context, proot, onOpenFiles = ::openFiles, onEdit = ::edit)
     val agents = AgentStore(proot, onChanged = ::syncGuest)
     val pacman = Pacman(context, proot)
+    val localAi = LocalAi(context, proot)
+    val androidSdk = AndroidSdk(proot, pacman)
     val widgets = WidgetEngine(context, proot, this)
 
     /** Widgets' speech(...) and android.speech. */
@@ -120,6 +125,7 @@ class Runtime(
                 openBridge::managed,
                 pacman::managed,
                 agents::managed,
+                localAi::managed,
                 themes::managed,
                 widgets::guestManaged,
             ),
@@ -207,6 +213,7 @@ class Runtime(
             withContext(Dispatchers.IO) {
                 launcherFiles.sync()
                 agents.load()
+                localAi.load()
             }
             // Linux apps are files on disk: listed now for the recent strip, not after Linux has started.
             if (bootstrap.wanted) scope.launch { linuxApps.refresh() } else linuxApps.listed = true
@@ -282,6 +289,7 @@ class Runtime(
                 withContext(Dispatchers.IO) {
                     updates.forget()
                     agents.load()
+                    localAi.load()
                 }
                 gpu.turnOff()
                 linuxApps.clear()
@@ -339,6 +347,7 @@ class Runtime(
             audio.start()
             synchronized(server) { server.input.setKeymap(proot.keymap.path) }
             agents.load()
+            localAi.load()
         }
         widgets.linuxChanged(true)
         refreshApps()
@@ -413,6 +422,17 @@ class Runtime(
         if (screens++ == 0) proot.procShim.setActive(true)
         // Only checks when the last check is hours old; see SystemUpdates.
         if (linux) scope.launch { updates.check() }
+        if (linux && localAi.suggestionsEnabled) refreshAiSuggestions()
+    }
+
+    /** At most every [SUGGESTION_INTERVAL]: the local model's opinion of the recent-apps strip; see [LocalAi.refreshSuggestions]. */
+    private var lastSuggestionRefresh = 0L
+
+    private fun refreshAiSuggestions() {
+        val now = System.currentTimeMillis()
+        if (now - lastSuggestionRefresh < SUGGESTION_INTERVAL) return
+        lastSuggestionRefresh = now
+        scope.launch(Dispatchers.IO) { localAi.refreshSuggestions(recentApps(this@Runtime, 12).map { it.key to it.label }) }
     }
 
     fun screenStopped() {
@@ -651,5 +671,6 @@ class Runtime(
     companion object {
         private const val TAG = "runtime"
         private const val SETUP_DONE = "setup_done"
+        private const val SUGGESTION_INTERVAL = 30 * 60 * 1000L
     }
 }

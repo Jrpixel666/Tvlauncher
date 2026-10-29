@@ -1,0 +1,21 @@
+widget "local ai" {
+  page: 2
+  order: 3
+  size: 3x3
+  minSize: 3x2
+
+  meta { owl: 5 }
+
+  // omalauncher-ai is the default local model's one-off answer to a prompt (settings › local ai, see README.md);
+  // it can take a while on a phone, so this asks rarely and keeps showing the last answer meanwhile.
+  // optional: without Linux, or before a model is downloaded, this shows a placeholder instead of failing.
+  source tip = cmd("omalauncher-ai 'One short, surprising fact. One sentence, no preamble, no quotes.'") every 1h timeout 120s optional
+
+  onTap: launcher("localai")
+
+  Column {
+    gap: 6
+    Text { text: "local ai"; style: muted }
+    Text { text: tip == "" ? "tap to set up a model, fully offline" : tip; style: body }
+  }
+}

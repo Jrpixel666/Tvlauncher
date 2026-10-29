@@ -51,6 +51,7 @@ fun SettingsScreen(
     onStyle: () -> Unit,
     onPages: () -> Unit,
     onAgents: () -> Unit,
+    onLocalAi: () -> Unit,
     onPackages: () -> Unit,
     onLinux: () -> Unit,
     onLicenses: () -> Unit,
@@ -101,6 +102,15 @@ fun SettingsScreen(
                     )
                 } else {
                     SettingsRow(R.string.settings_agents, needsLinux, onLinux)
+                },
+                if (installed) {
+                    SettingsRow(
+                        R.string.settings_localai,
+                        runtime.localAi.default?.let { stringResource(R.string.settings_localai_default, it.name) } ?: stringResource(R.string.settings_localai_install),
+                        onLocalAi,
+                    )
+                } else {
+                    SettingsRow(R.string.settings_localai, needsLinux, onLinux)
                 },
                 SettingsRow(R.string.settings_packages, if (installed) stringResource(R.string.settings_packages_subtitle) else needsLinux, if (installed) onPackages else onLinux),
                 if (localNetworkMissing) {
