@@ -11,6 +11,11 @@ Dates are when the build was uploaded to Play.
   embedding sections), download one and run it offline with llama.cpp (installed like any
   other package). Widgets can ask the default model too, with `cmd("omalauncher-ai '...'")`;
   the home screen can optionally let it reorder the recent-apps strip by time of day.
+- Settings › local ai also has a second, separate window: "build an app" sets up a JDK,
+  Gradle and the Android SDK (aapt2/aapt/aidl/zipalign swapped for an ARM64 build, since
+  Google only ships those four as x86_64 binaries) and opens a coding agent in it to scaffold
+  and build a real Android app into an APK, right here — a local model isn't capable enough
+  for that, so this one needs an installed coding agent and its own internet access.
 - The launcher speaks Indonesian: with the phone set to Indonesian, all of its text, the
   drawer, the today, fetch and owl widgets and the terminal key bar's spoken key names are
   in Indonesian.

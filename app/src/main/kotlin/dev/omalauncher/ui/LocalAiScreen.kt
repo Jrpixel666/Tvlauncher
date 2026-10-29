@@ -44,6 +44,7 @@ fun LocalAiScreen(
     runtime: Runtime,
     onDismiss: () -> Unit,
     onChat: (LocalModel) -> Unit,
+    onBuildApp: () -> Unit,
 ) {
     val localAi = runtime.localAi
     val scope = rememberCoroutineScope()
@@ -63,6 +64,7 @@ fun LocalAiScreen(
         LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             item { BasicText(stringResource(R.string.localai_intro), style = Mono.copy(color = Palette.muted, fontSize = TextSize.Small)) }
             item { EngineSection(runtime) }
+            item { AndroidAppSection(runtime, onBuildApp) }
             if (localAi.models.isNotEmpty()) {
                 item { SectionLabel(stringResource(R.string.localai_downloaded)) }
                 items(localAi.models, key = { it.name }) { model ->
@@ -141,6 +143,41 @@ private fun EngineSection(runtime: Runtime) {
                 JobLog(state)
             }
         }
+    }
+}
+
+/**
+ * A separate, second window from the chat one: a real Android project, built into an APK by a cloud
+ * coding agent (small local models aren't capable enough for that), in an environment set up once so
+ * `./gradlew assembleDebug` works on this phone's CPU; see [dev.omalauncher.linux.AndroidSdk].
+ */
+@Composable
+private fun AndroidAppSection(
+    runtime: Runtime,
+    onBuildApp: () -> Unit,
+) {
+    val sdk = runtime.androidSdk
+    val scope = rememberCoroutineScope()
+    val state = sdk.state
+    val installed = sdk.installed()
+    val hasAgent = runtime.agents.default != null
+    Column(Modifier.card(10.dp)) {
+        ActionsRow(
+            actions = {
+                when {
+                    state is JobState.Working -> BasicText("${stringResource(state.action)}…", style = Mono.copy(color = Palette.accent))
+                    installed && hasAgent -> BracketAction(stringResource(R.string.localai_android_build), Palette.accent, onClick = onBuildApp)
+                    installed -> BasicText(stringResource(R.string.localai_android_needs_agent), style = Mono.copy(color = Palette.muted, fontSize = TextSize.Small))
+                    else -> BracketAction(stringResource(R.string.localai_android_install), Palette.accent) { scope.launch { sdk.install() } }
+                }
+            },
+        ) {
+            Column {
+                BasicText(stringResource(R.string.localai_android_title), style = Mono.copy(fontSize = TextSize.Item))
+                BasicText(stringResource(R.string.localai_android_intro), style = Mono.copy(color = Palette.muted, fontSize = TextSize.Small))
+            }
+        }
+        JobLog(state)
     }
 }
 

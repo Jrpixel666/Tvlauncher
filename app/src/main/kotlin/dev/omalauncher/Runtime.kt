@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.toArgb
 import dev.omalauncher.linux.AGENTS
 import dev.omalauncher.linux.Agent
 import dev.omalauncher.linux.AgentStore
+import dev.omalauncher.linux.AndroidSdk
 import dev.omalauncher.linux.AudioBridge
 import dev.omalauncher.linux.Bootstrap
 import dev.omalauncher.linux.EDIT_COMMAND
@@ -102,6 +103,7 @@ class Runtime(
     val agents = AgentStore(proot, onChanged = ::syncGuest)
     val pacman = Pacman(context, proot)
     val localAi = LocalAi(context, proot)
+    val androidSdk = AndroidSdk(proot, pacman)
     val widgets = WidgetEngine(context, proot, this)
 
     /** Widgets' speech(...) and android.speech. */

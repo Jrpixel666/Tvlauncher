@@ -20,6 +20,7 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import dev.omalauncher.Runtime
 import dev.omalauncher.linux.LinuxState
+import dev.omalauncher.linux.androidAppCommand
 
 /** The screens of the settings activity; each can also be opened on its own, from home or a widget. */
 enum class SettingsPage {
@@ -169,6 +170,10 @@ private fun SettingsPage(
                     onChat = { model ->
                         close()
                         runtime.terminal(runtime.localAi.chatInvocation(model), "local ai")
+                    },
+                    onBuildApp = {
+                        close()
+                        agent("build android app") { bin -> androidAppCommand(bin) }
                     },
                 )
             }
