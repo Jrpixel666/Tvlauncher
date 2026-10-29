@@ -8,7 +8,7 @@
     <string name="localai_engine_intro">llama.cpp runs the model; install it like any other package, below or in settings › packages.</string>
 
     <string name="localai_android_title">build android apps</string>
-    <string name="localai_android_intro">A separate window from chat: a real app, built into an APK right here by a coding agent (a local model isn\'t capable enough for this) in an Android SDK set up for this phone\'s CPU.</string>
+    <string name="localai_android_intro">A separate window from chat: a real app, scaffolded by a coding agent (a local model isn\'t capable enough for this) and built into an APK by pushing to a new GitHub repo and letting its Actions build it — more reliable than building right here, which still works too as a quick first try.</string>
     <string name="localai_android_install">set up</string>
     <string name="localai_android_build">build an app</string>
     <string name="localai_android_needs_agent">install a coding agent first, in settings › coding agents</string>
