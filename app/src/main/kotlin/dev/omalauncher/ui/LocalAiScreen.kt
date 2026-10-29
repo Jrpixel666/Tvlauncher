@@ -241,7 +241,7 @@ private fun SuggestionsRow(localAi: LocalAi) {
         BracketAction(
             stringResource(if (localAi.suggestionsEnabled) R.string.localai_suggestions_on else R.string.localai_suggestions_off),
             if (localAi.suggestionsEnabled) Palette.accent else Palette.muted,
-            onClick = { localAi.setSuggestionsEnabled(!localAi.suggestionsEnabled) },
+            onClick = { localAi.suggestionsEnabled = !localAi.suggestionsEnabled },
         )
     }
 }
