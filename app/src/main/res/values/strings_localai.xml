@@ -44,6 +44,7 @@
     <string name="localai_compatible_on">compatible with my device ✓</string>
     <string name="localai_compatible_off">compatible with my device</string>
     <string name="localai_none">no models match</string>
+    <string name="localai_search_failed">search failed · check your connection and try again</string>
     <!-- %1$d downloads, %2$d likes. -->
     <string name="localai_model_stats">%1$d downloads · %2$d likes</string>
     <string name="localai_show_files">files</string>

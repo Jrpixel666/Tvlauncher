@@ -66,27 +66,32 @@ object HuggingFace {
      * Models matching [query] (everything, if blank), most-downloaded first. [ggufOnly] is the "compatible with
      * my device" filter: llama.cpp only runs a model that has a GGUF build at all, which rules out the great
      * majority of Hugging Face, where most repos hold a format meant for a GPU server.
+     *
+     * Throws on a network/parse failure instead of returning an empty list, so the caller can tell "no results"
+     * from "the request failed" (a silent empty list there used to look exactly like a real empty search).
      */
     suspend fun search(
         query: String,
         ggufOnly: Boolean,
         limit: Int = 30,
-    ): List<HfModel> =
-        runCatching {
-            val q = query.trim()
-            val url =
-                buildString {
-                    append(API)
-                    append("?sort=downloads&direction=-1&limit=$limit")
-                    if (ggufOnly) append("&filter=gguf")
-                    if (q.isNotEmpty()) append("&search=").append(URLEncoder.encode(q, "UTF-8"))
-                }
-            val array = JSONArray(String(httpGet(url, readTimeout = 20_000)))
-            (0 until array.length()).mapNotNull { i -> runCatching { array.getJSONObject(i).toModel() }.getOrNull() }
-        }.getOrElse {
-            Log.w(TAG, "search failed", it)
-            emptyList()
-        }
+    ): List<HfModel> {
+        val q = query.trim()
+        val url =
+            buildString {
+                append(API)
+                append("?sort=downloads&direction=-1&limit=$limit")
+                if (ggufOnly) append("&filter=gguf")
+                if (q.isNotEmpty()) append("&search=").append(URLEncoder.encode(q, "UTF-8"))
+            }
+        val array =
+            try {
+                JSONArray(String(httpGet(url, readTimeout = 20_000)))
+            } catch (e: Exception) {
+                Log.w(TAG, "search failed", e)
+                throw e
+            }
+        return (0 until array.length()).mapNotNull { i -> runCatching { array.getJSONObject(i).toModel() }.getOrNull() }
+    }
 
     private fun JSONObject.toModel(): HfModel {
         val id = getString("id")

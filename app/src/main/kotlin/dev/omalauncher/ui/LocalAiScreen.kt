@@ -30,6 +30,7 @@ import dev.omalauncher.linux.LocalAi
 import dev.omalauncher.linux.LocalModel
 import dev.omalauncher.linux.ModelCategory
 import dev.omalauncher.linux.Package
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -52,13 +53,21 @@ fun LocalAiScreen(
     var query by remember { mutableStateOf("") }
     var compatibleOnly by remember { mutableStateOf(true) }
     val loaded by
-        produceState<Pair<String, List<HfModel>>?>(null, query, compatibleOnly) {
+        produceState<Triple<String, List<HfModel>, Boolean>?>(null, query, compatibleOnly) {
             val q = query.trim()
             if (q.isNotEmpty()) delay(350) // debounce typing, as the packages search does
-            value = q to HuggingFace.search(q, ggufOnly = compatibleOnly)
+            value =
+                try {
+                    Triple(q, HuggingFace.search(q, ggufOnly = compatibleOnly), false)
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    Triple(q, emptyList(), true)
+                }
         }
     val searching = loaded?.first != query.trim()
     val results = loaded?.second.orEmpty()
+    val searchFailed = loaded?.third == true
     val grouped = remember(results) { results.groupBy { it.category } }
 
     OverlayPanel(stringResource(R.string.localai_title), onDismiss, contentWidth = ReadingWidth) {
@@ -94,10 +103,11 @@ fun LocalAiScreen(
                     val status =
                         when {
                             searching -> stringResource(R.string.packages_searching)
+                            searchFailed -> stringResource(R.string.localai_search_failed)
                             results.isEmpty() -> stringResource(R.string.localai_none)
                             else -> pluralStringResource(R.plurals.packages_results, results.size, results.size)
                         }
-                    BasicText(status, Modifier.padding(top = 6.dp), style = Mono.copy(color = Palette.muted))
+                    BasicText(status, Modifier.padding(top = 6.dp), style = Mono.copy(color = if (searchFailed) Palette.red else Palette.muted))
                 }
             }
             if (!searching) {
