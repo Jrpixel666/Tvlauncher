@@ -30,11 +30,19 @@ jobs:
       - name: Test
         run: ./gradlew :owl:test :app:testDebugUnitTest :owl:owlJar
 
-      # Builds without proot (scripts/fetch-proot.sh), which is enough to compile wlbridge and run lint.
+      # bsdtar reads .deb (ar) archives, which scripts/fetch-proot.sh needs; not on the runner by default.
+      - name: Install bsdtar
+        run: sudo apt-get update -y && sudo apt-get install -y libarchive-tools
+
+      # Builds proot itself (from Termux's source) so this build's Linux features actually work,
+      # not just a placeholder that lets wlbridge/lint run.
+      - name: Build proot
+        run: ./scripts/fetch-proot.sh
+
       - name: Build and lint
         run: ./gradlew :app:assembleDebug :app:lintDebug
 
-      # Downloadable from the run's summary page; this build has no proot so Linux features won't work.
+      # Downloadable from the run's summary page; a full build with proot, so Linux features work.
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
         with:
