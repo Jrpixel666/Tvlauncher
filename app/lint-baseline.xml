@@ -145,4 +145,13 @@
             line="275"/>
     </issue>
 
+    <!-- Reported twice (two lint variants see this line); a second entry so both are absorbed. -->
+    <issue
+        id="LocalContextGetResourceValueCall"
+        message="Querying resource values using LocalContext.current is not configuration-aware and may return stale values if the Configuration changes">
+        <location
+            file="src/main/kotlin/dev/omalauncher/ui/ShareWidgetScreen.kt"
+            line="275"/>
+    </issue>
+
 </issues>
