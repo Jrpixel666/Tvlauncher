@@ -83,14 +83,14 @@ class LocalAi(
      * since every refresh costs it a few seconds of generation. See [refreshSuggestions] and
      * [dev.omalauncher.ui.recentApps].
      */
-    var suggestionsEnabled by mutableStateOf(prefs.getBoolean(SUGGESTIONS_ENABLED, false))
-        private set
-
-    fun setSuggestionsEnabled(on: Boolean) {
-        suggestionsEnabled = on
-        prefs.edit().putBoolean(SUGGESTIONS_ENABLED, on).apply()
-        if (!on) suggestedKeys = emptyList()
-    }
+    private var _suggestionsEnabled by mutableStateOf(prefs.getBoolean(SUGGESTIONS_ENABLED, false))
+    var suggestionsEnabled: Boolean
+        get() = _suggestionsEnabled
+        set(value) {
+            _suggestionsEnabled = value
+            prefs.edit().putBoolean(SUGGESTIONS_ENABLED, value).apply()
+            if (!value) suggestedKeys = emptyList()
+        }
 
     /** App keys [refreshSuggestions] last proposed, most-likely first; empty until it has run once, or while it's off. */
     var suggestedKeys by mutableStateOf<List<String>>(emptyList())
