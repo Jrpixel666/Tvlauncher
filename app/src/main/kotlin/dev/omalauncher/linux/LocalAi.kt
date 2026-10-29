@@ -21,6 +21,18 @@ data class LocalModel(
     val sizeBytes: Long get() = file.length()
 }
 
+/** One file [LocalAi.autoApply] wrote, and how big it ended up; [path] is relative to the project directory it was asked to write in. */
+data class AppliedFile(
+    val path: String,
+    val sizeBytes: Long,
+)
+
+/** What one [LocalAi.autoApply] call produced: the model's whole reply, and what it wrote from it (possibly nothing). */
+data class AutoApplyResult(
+    val reply: String,
+    val files: List<AppliedFile>,
+)
+
 /**
  * Local, offline text generation: Hugging Face's GGUF models (browsed and downloaded in
  * [dev.omalauncher.ui.LocalAiScreen]), run by llama.cpp inside Linux once they're on disk. llama.cpp
@@ -120,14 +132,16 @@ class LocalAi(
     /**
      * `llama-cli` asked [prompt] with [model] (or [default]); null without one. `-ngl` always asks for full
      * GPU offload: on a build with no GPU backend (most phones don't have a supported one; see [Gpu]) it's
-     * simply ignored and llama.cpp runs on the CPU.
+     * simply ignored and llama.cpp runs on the CPU. [maxTokens] is `-n`: a short answer needs few, generated
+     * code needs many more.
      */
     fun invocation(
         prompt: String,
         model: LocalModel? = default,
+        maxTokens: Int = 256,
     ): String? {
         val path = guestPath(model) ?: return null
-        return "llama-cli -m $path -no-cnv --no-display-prompt -ngl 999 -n 256 -p ${shellQuote(prompt)} 2>/dev/null"
+        return "llama-cli -m $path -no-cnv --no-display-prompt -ngl 999 -n $maxTokens -p ${shellQuote(prompt)} 2>/dev/null"
     }
 
     /** An interactive chat with [model] (or [default]) for a terminal tile; null without one. */
@@ -140,8 +154,9 @@ class LocalAi(
     suspend fun ask(
         prompt: String,
         timeoutSeconds: Int = 40,
+        maxTokens: Int = 256,
     ): String? {
-        val command = invocation(prompt) ?: return null
+        val command = invocation(prompt, maxTokens = maxTokens) ?: return null
         val result = shell.run(command, timeoutSeconds, retry = false)
         return result.out.trim().takeIf { it.isNotEmpty() && !result.timedOut }
     }
@@ -169,12 +184,57 @@ class LocalAi(
         if (picked.isNotEmpty()) suggestedKeys = picked
     }
 
+    /**
+     * Asks [default] to write or change files under [projectDir] (a guest path; its folder doesn't need to
+     * exist yet) for [prompt], writing each one [autoApply] can find in the reply straight to disk itself
+     * — never through the guest shell, where arbitrary generated code would be awkward and risky to push
+     * through shell quoting. Null only if there's no model, or it didn't answer in time; a reply with no
+     * file in the format it was asked for still comes back, just with an empty [AutoApplyResult.files], so
+     * a plain question still gets an answer. See [dev.omalauncher.ui.LocalAiCodeScreen].
+     */
+    suspend fun autoApply(
+        projectDir: String,
+        prompt: String,
+        timeoutSeconds: Int = 180,
+    ): AutoApplyResult? {
+        val reply = ask("$AUTO_APPLY_INSTRUCTIONS\n\nWorking in $projectDir. $prompt", timeoutSeconds, maxTokens = 1536) ?: return null
+        val root = proot.guestFile(projectDir)?.canonicalFile?.toPath() ?: return AutoApplyResult(reply, emptyList())
+        val written =
+            FILE_BLOCK.findAll(reply).mapNotNull { match ->
+                val path = match.groupValues[1].trim('`', ' ')
+                val content = match.groupValues[2]
+                if (path.isEmpty() || content.length > MAX_FILE_CHARS) return@mapNotNull null
+                // Resolved the safe way, and checked against root again: enough "../../.." in path could
+                // otherwise climb out of the project and into the rest of the guest, which must never happen.
+                val target =
+                    proot.guestFile("$projectDir/$path")?.canonicalFile?.takeIf { it.toPath().startsWith(root) } ?: return@mapNotNull null
+                runCatching {
+                    target.parentFile?.mkdirs()
+                    target.writeText(content)
+                }.map { AppliedFile(path, target.length()) }.getOrNull()
+            }.toList()
+        return AutoApplyResult(reply, written)
+    }
+
     /** The shim at ~/.local/bin/omalauncher-ai, so widgets and the prompt bar can ask the default model without knowing its path. */
     fun managed(): List<Managed> = listOf(Managed.text(File(proot.home, ".local/bin/omalauncher-ai"), Policy.Owned, executable = true) { SHIM })
 
     private companion object {
         const val TAG = "localai"
         const val SUGGESTIONS_ENABLED = "localai_suggestions"
+
+        /** A file path alone on a line (an optional backtick either side), then a fenced code block: the format [AUTO_APPLY_INSTRUCTIONS] asks for. */
+        val FILE_BLOCK = Regex("""(?m)^`?([\w][\w./-]*\.\w+)`?[ \t]*\n```[^\n]*\n([\s\S]*?)\n```""")
+
+        /** A reply bigger than this per file is treated as the model running on past any real file: skipped rather than written half-sane. */
+        const val MAX_FILE_CHARS = 200_000
+
+        const val AUTO_APPLY_INSTRUCTIONS =
+            "When you create or change a file, write its path alone on its own line (relative to the folder named " +
+                "below, nothing before or after it on that line), then a fenced code block with that file's whole new " +
+                "content (not a diff or a snippet: the whole file, since nothing else here reads what was there " +
+                "before). You can do this for more than one file in the same answer. Anything else you want to say " +
+                "goes in plain text outside those blocks."
 
         val SHIM =
             """

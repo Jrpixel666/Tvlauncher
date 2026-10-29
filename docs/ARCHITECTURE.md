@@ -32,10 +32,14 @@ touches it: `files/omarchy` is `~/.local/share/omarchy` and `files/widgets` is
   (or, for a widget's `Terminal`, into a TextureView in the tile)
 - `linux/`: proot, the rootfs setup and its update steps, pacman, coding
   agents, local AI (`HuggingFace.kt`, `LocalAi.kt`: Hugging Face search and a
-  downloaded GGUF model, run offline by llama.cpp), a second, separate window
-  for a coding agent to build a real Android app into an APK (`AndroidSdk.kt`:
-  a JDK, Gradle and the Android SDK, with aapt2/aapt/aidl/zipalign swapped for
-  an ARM64 build), and the bridges to Android (audio, URLs, /proc)
+  downloaded GGUF model, run offline by llama.cpp, including
+  `LocalAi.autoApply`, which parses path + fenced-code-block pairs out of a
+  reply and writes them straight to disk), a second, separate window for a
+  coding agent to scaffold a real Android app and get it built — pushed to a
+  new GitHub repo and built there, or right here (`AndroidSdk.kt`: a JDK,
+  Gradle, the Android SDK and the GitHub CLI, with aapt2/aapt/aidl/zipalign
+  swapped for an ARM64 build for the local path), and the bridges to Android
+  (audio, URLs, /proc)
 - `ui/`: the Compose home screen, the bar and its app list, settings and Files
 - `widgets/`: the widget engine; the language itself is in the `owl` module.
   A widget's state and sources live in its `WidgetInstance`, which runs while

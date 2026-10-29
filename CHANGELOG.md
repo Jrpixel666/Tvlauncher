@@ -14,8 +14,15 @@ Dates are when the build was uploaded to Play.
 - Settings › local ai also has a second, separate window: "build an app" sets up a JDK,
   Gradle and the Android SDK (aapt2/aapt/aidl/zipalign swapped for an ARM64 build, since
   Google only ships those four as x86_64 binaries) and opens a coding agent in it to scaffold
-  and build a real Android app into an APK, right here — a local model isn't capable enough
-  for that, so this one needs an installed coding agent and its own internet access.
+  a real Android app, pushed to a new GitHub repo and built into an APK there (Google's real
+  build tools, no ARM64 workaround needed), with the APK attached to a GitHub Release — a
+  local model isn't capable enough for that, so this one needs an installed coding agent and
+  its own internet access.
+- A third local-ai window, "code with it": ask the local model for files instead of an answer
+  to read, and it writes what it generates straight into a project under ~/android-apps, no
+  copying by hand. A small model loses track past a few files and can't read what it hasn't
+  been shown, so it's meant for drafting one or a few files at a time before handing the
+  project to "build an app"'s coding agent to take further.
 - The launcher speaks Indonesian: with the phone set to Indonesian, all of its text, the
   drawer, the today, fetch and owl widgets and the terminal key bar's spoken key names are
   in Indonesian.

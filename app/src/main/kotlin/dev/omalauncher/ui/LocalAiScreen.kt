@@ -48,6 +48,7 @@ fun LocalAiScreen(
 ) {
     val localAi = runtime.localAi
     val scope = rememberCoroutineScope()
+    var coding by remember { mutableStateOf(false) }
     var query by remember { mutableStateOf("") }
     var compatibleOnly by remember { mutableStateOf(true) }
     val loaded by
@@ -64,6 +65,7 @@ fun LocalAiScreen(
         LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             item { BasicText(stringResource(R.string.localai_intro), style = Mono.copy(color = Palette.muted, fontSize = TextSize.Small)) }
             item { EngineSection(runtime) }
+            item { CodeSection(localAi, onOpen = { coding = true }) }
             item { AndroidAppSection(runtime, onBuildApp) }
             if (localAi.models.isNotEmpty()) {
                 item { SectionLabel(stringResource(R.string.localai_downloaded)) }
@@ -106,6 +108,26 @@ fun LocalAiScreen(
                     items(models, key = { it.id }) { model -> ModelRow(model, localAi, scope) }
                 }
             }
+        }
+    }
+    if (coding) LocalAiCodeScreen(runtime, onDismiss = { coding = false })
+}
+
+/** The "code with it" row: opens [LocalAiCodeScreen], the local model writing files straight to disk. */
+@Composable
+private fun CodeSection(
+    localAi: LocalAi,
+    onOpen: () -> Unit,
+) {
+    Row(Modifier.card(10.dp), verticalAlignment = Alignment.CenterVertically) {
+        Column(Modifier.weight(1f).padding(end = 8.dp)) {
+            BasicText(stringResource(R.string.localai_code_title), style = Mono.copy(fontSize = TextSize.Item))
+            BasicText(stringResource(R.string.localai_code_intro), style = Mono.copy(color = Palette.muted, fontSize = TextSize.Small))
+        }
+        if (localAi.default != null) {
+            BracketAction(stringResource(R.string.localai_code_open), Palette.accent, onClick = onOpen)
+        } else {
+            BasicText(stringResource(R.string.localai_code_needs_model), style = Mono.copy(color = Palette.muted, fontSize = TextSize.Small))
         }
     }
 }
@@ -270,7 +292,7 @@ private fun ModelRow(
     }
 }
 
-private fun formatSize(bytes: Long): String =
+internal fun formatSize(bytes: Long): String =
     when {
         bytes <= 0 -> ""
         bytes >= 1_000_000_000L -> "%.1f GB".format(bytes / 1e9)

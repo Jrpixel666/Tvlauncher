@@ -7,6 +7,19 @@
     <string name="localai_engine_title">engine</string>
     <string name="localai_engine_intro">llama.cpp runs the model; install it like any other package, below or in settings › packages.</string>
 
+    <string name="localai_code_title">code with it</string>
+    <string name="localai_code_intro">Ask it for files instead of an answer; it writes them straight into a project, no copying by hand.</string>
+    <string name="localai_code_open">open</string>
+    <string name="localai_code_needs_model">download a model first</string>
+    <string name="localai_code_screen_intro">Say what to create or change; the model writes whole files (not diffs) straight into the project below, under ~/android-apps. A small model can lose track past a few files, and can\'t read what it hasn\'t been shown, so expect to ask it one file, or a few related ones, at a time — "build an app" (a cloud coding agent) is the one to reach for past that.</string>
+    <string name="localai_code_project">project</string>
+    <string name="localai_code_placeholder">what should it write?</string>
+    <string name="localai_code_send">send</string>
+    <string name="localai_code_working">writing…</string>
+    <string name="localai_code_failed">no model, or it didn\'t answer in time</string>
+    <!-- %1$s a file path, %2$s its size like "2 KB". -->
+    <string name="localai_code_wrote">wrote %1$s · %2$s</string>
+
     <string name="localai_android_title">build android apps</string>
     <string name="localai_android_intro">A separate window from chat: a real app, scaffolded by a coding agent (a local model isn\'t capable enough for this) and built into an APK by pushing to a new GitHub repo and letting its Actions build it — more reliable than building right here, which still works too as a quick first try.</string>
     <string name="localai_android_install">set up</string>
