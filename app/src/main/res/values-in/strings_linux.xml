@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="linux_stage_download">unduh arch linux</string>
     <string name="linux_stage_extract">ekstrak sistem</string>
     <string name="linux_stage_configure">konfigurasi pacman</string>
     <string name="linux_stage_packages">pasang aplikasi omarchy</string>
     <string name="linux_stage_agents">pasang agen coding</string>
     <string name="linux_stage_agents_named">pasang %1$s</string>
+    <!-- Not translated yet; see strings_localai.xml. -->
+    <string name="linux_stage_localai" tools:ignore="MissingTranslation">install the local ai engine</string>
 
     <string name="linux_step_download">Mengunduh Arch Linux ARM</string>
     <string name="linux_step_configure">Mengonfigurasi sistem</string>
@@ -16,6 +18,7 @@
     <string name="linux_step_keymap">Mengompilasi keymap</string>
     <string name="linux_step_cliamp">Memasang cliamp</string>
     <string name="linux_step_agent">Memasang %1$s</string>
+    <string name="linux_step_localai" tools:ignore="MissingTranslation">Installing llama.cpp</string>
     <string name="linux_step_downloaded">%1$d dari %2$d MB</string>
     <string name="linux_step_downloaded_unknown">%1$d MB</string>
     <string name="linux_step_extract_start">Memulai</string>
@@ -67,6 +70,8 @@
     <string name="linux_welcome_linux">linux</string>
     <string name="linux_welcome_choice">siapkan Arch Linux juga</string>
     <string name="linux_welcome_choice_detail">aplikasi terminal, agen, pacman · unduhan ~1 GB, ruang 3 GB</string>
+    <string name="linux_welcome_localai" tools:ignore="MissingTranslation">local ai</string>
+    <string name="linux_welcome_localai_detail" tools:ignore="MissingTranslation">search Hugging Face and run a model fully offline · settings › local ai</string>
     <string name="linux_welcome_start">mulai</string>
     <string name="linux_welcome_start_linux">mulai dan siapkan linux</string>
     <string name="linux_welcome_start_hint">Mengunduh wallpaper tema sekarang, dan tema Omarchy lainnya (sekitar 70 MB) di latar belakang.</string>
