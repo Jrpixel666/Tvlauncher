@@ -26,7 +26,7 @@ enum class ModelCategory(
     Other(R.string.localai_category_other),
 }
 
-private fun categoryOf(
+internal fun categoryOf(
     pipelineTag: String?,
     tags: List<String>,
 ): ModelCategory {

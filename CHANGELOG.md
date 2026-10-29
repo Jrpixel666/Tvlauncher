@@ -23,6 +23,9 @@ Dates are when the build was uploaded to Play.
   copying by hand. A small model loses track past a few files and can't read what it hasn't
   been shown, so it's meant for drafting one or a few files at a time before handing the
   project to "build an app"'s coding agent to take further.
+- A "local ai" example widget (store's built-in examples): a tile that shows the default
+  model's answer to a rotating prompt, refreshed hourly, tap to open settings › local ai.
+  `launcher("localai")` is new for any widget that wants that same tap target.
 - The launcher speaks Indonesian: with the phone set to Indonesian, all of its text, the
   drawer, the today, fetch and owl widgets and the terminal key bar's spoken key names are
   in Indonesian.

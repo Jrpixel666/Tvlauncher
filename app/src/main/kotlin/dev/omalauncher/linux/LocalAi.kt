@@ -33,6 +33,16 @@ data class AutoApplyResult(
     val files: List<AppliedFile>,
 )
 
+/** A file path alone on a line (an optional backtick either side), then a fenced code block: the format [AUTO_APPLY_INSTRUCTIONS] asks for. */
+private val FILE_BLOCK = Regex("""(?m)^`?([\w][\w./-]*\.\w+)`?[ \t]*\n```[^\n]*\n([\s\S]*?)\n```""")
+
+/** Every (path, content) pair [AUTO_APPLY_INSTRUCTIONS]'s format gives in [reply]; [LocalAi.autoApply] writes each one. */
+internal fun parseFileBlocks(reply: String): List<Pair<String, String>> =
+    FILE_BLOCK.findAll(reply).mapNotNull { match ->
+        val path = match.groupValues[1].trim('`', ' ')
+        if (path.isEmpty()) null else path to match.groupValues[2]
+    }.toList()
+
 /**
  * Local, offline text generation: Hugging Face's GGUF models (browsed and downloaded in
  * [dev.omalauncher.ui.LocalAiScreen]), run by llama.cpp inside Linux once they're on disk. llama.cpp
@@ -200,10 +210,8 @@ class LocalAi(
         val reply = ask("$AUTO_APPLY_INSTRUCTIONS\n\nWorking in $projectDir. $prompt", timeoutSeconds, maxTokens = 1536) ?: return null
         val root = proot.guestFile(projectDir)?.canonicalFile?.toPath() ?: return AutoApplyResult(reply, emptyList())
         val written =
-            FILE_BLOCK.findAll(reply).mapNotNull { match ->
-                val path = match.groupValues[1].trim('`', ' ')
-                val content = match.groupValues[2]
-                if (path.isEmpty() || content.length > MAX_FILE_CHARS) return@mapNotNull null
+            parseFileBlocks(reply).mapNotNull { (path, content) ->
+                if (content.length > MAX_FILE_CHARS) return@mapNotNull null
                 // Resolved the safe way, and checked against root again: enough "../../.." in path could
                 // otherwise climb out of the project and into the rest of the guest, which must never happen.
                 val target =
@@ -212,7 +220,7 @@ class LocalAi(
                     target.parentFile?.mkdirs()
                     target.writeText(content)
                 }.map { AppliedFile(path, target.length()) }.getOrNull()
-            }.toList()
+            }
         return AutoApplyResult(reply, written)
     }
 
@@ -222,9 +230,6 @@ class LocalAi(
     private companion object {
         const val TAG = "localai"
         const val SUGGESTIONS_ENABLED = "localai_suggestions"
-
-        /** A file path alone on a line (an optional backtick either side), then a fenced code block: the format [AUTO_APPLY_INSTRUCTIONS] asks for. */
-        val FILE_BLOCK = Regex("""(?m)^`?([\w][\w./-]*\.\w+)`?[ \t]*\n```[^\n]*\n([\s\S]*?)\n```""")
 
         /** A reply bigger than this per file is treated as the model running on past any real file: skipped rather than written half-sane. */
         const val MAX_FILE_CHARS = 200_000
