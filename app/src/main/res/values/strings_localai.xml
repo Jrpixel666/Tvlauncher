@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Settings › local ai (linux/LocalAi.kt, linux/HuggingFace.kt, ui/LocalAiScreen.kt). -->
-<resources>
+<!-- Not translated to Indonesian yet, like other features before their translation lands; see CHANGELOG.md. -->
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
     <string name="localai_title">local ai</string>
     <string name="localai_intro">A model from Hugging Face, downloaded once and run by llama.cpp with no network after that. Widgets can ask it too, with omalauncher-ai: see the widget docs.</string>
 

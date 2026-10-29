@@ -28,6 +28,10 @@ android {
 
     buildFeatures { buildConfig = true }
 
+    // Pre-existing LocalContextGetResourceValueCall findings, from before this branch; not re-fixed here to
+    // avoid touching unrelated Compose code. New findings outside this baseline still fail the build.
+    lint { baseline = file("lint-baseline.xml") }
+
     externalNativeBuild {
         cmake { path = file("src/main/cpp/CMakeLists.txt") }
     }
